@@ -17,23 +17,6 @@ def GetQuizInfo():
 	return {"size": 0, "scores": []}, 200
 
 
-from flask import Flask, request, jsonify
-import hashlib
-import jwt
-import datetime
-from werkzeug.exceptions import Unauthorized
-
-class JwtError(Exception):
-    """Exception raised for jwt errors in the quiz app"""
-    def __init__(self, message="Jwt error"):
-        self.message = message
-        super().__init__(self.message)
-
-app = Flask(__name__)
-
-secret = "LeonMarchandestlemeilleur!"
-expiration_in_seconds = 3600
-
 @app.route('/login', methods=['POST'])
 def PostLogin():
     try:
