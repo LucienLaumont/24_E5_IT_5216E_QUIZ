@@ -11,9 +11,34 @@ question_bp = Blueprint('question', __name__)
 def rebuild_db():
     try:
         init_db()
-        return Response('Ok', status=200)  # Return plain text response
+        return Response('Ok', status=200)
     except Exception as e:
         return jsonify({"error": "An error occurred.", "details": str(e)}), 500
+
+@question_bp.route('/questions/all',methods=['DELETE'])
+def delete_all_questions():
+    try:
+        # Connexion à la base de données
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute('PRAGMA foreign_keys = ON;')
+        cursor.execute('''
+            DELETE FROM Question
+        ''')
+        
+        # Sauvegarde et fermeture
+        conn.commit()
+        conn.close()
+
+        return Response('Delete Questions table', status=204)
+    
+    except Exception as e:
+        if conn:
+            conn.rollback()
+            conn.close()
+        return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+
 
 
 @question_bp.route('/questions', methods=['POST'])
@@ -39,7 +64,7 @@ def questions():
         image = payload['image']
         possible_answers = payload['possibleAnswers']
         
-        
+
         # Gestion des conflits de position
         manage_position.increment_positions(cursor, position)
 
@@ -74,3 +99,5 @@ def questions():
             conn.rollback()
             conn.close()
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+
+

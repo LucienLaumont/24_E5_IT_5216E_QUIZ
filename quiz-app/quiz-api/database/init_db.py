@@ -12,6 +12,7 @@ def init_db(db_name="database.db"):
 
         print(f"Base de données '{db_name}' connectée avec succès.")
 
+        cursor.execute('PRAGMA foreign_keys = ON;')
         # Création d'une table (exemple : Question)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Question (
