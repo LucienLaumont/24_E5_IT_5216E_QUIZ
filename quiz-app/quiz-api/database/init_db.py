@@ -16,7 +16,7 @@ def init_db(db_name="database.db"):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Question (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                position INTEGER NOT NULL UNIQUE,
+                position INTEGER NOT NULL,
                 title TEXT,
                 text TEXT,
                 image TEXT

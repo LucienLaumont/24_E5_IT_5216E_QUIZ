@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, Response
 from database.init_db import init_db
+from database import manage_position
 import sqlite3
 
 DATABASE_NAME = "database.db"
@@ -37,6 +38,10 @@ def questions():
         text = payload['text']
         image = payload['image']
         possible_answers = payload['possibleAnswers']
+        
+        
+        # Gestion des conflits de position
+        manage_position.increment_positions(cursor, position)
 
         # Insertion de la question dans la base de données
         cursor.execute('''
@@ -65,4 +70,7 @@ def questions():
         return jsonify({"message": "Question et réponses insérées avec succès."}), 200
 
     except Exception as e:
+        if conn:
+            conn.rollback()
+            conn.close()
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
