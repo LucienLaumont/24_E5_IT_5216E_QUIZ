@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import hashlib
 
-from jwt_utils import build_token
+from security.jwt_utils import build_token, decode_token
 
 app = Flask(__name__)
 CORS(app)
@@ -40,6 +40,11 @@ def PostLogin():
 
     except Exception as e:
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+    
+@app.route('/question', methods=['POST'])
+def PostQuestion():
+	return {"size": 0, "scores": []}, 200
+
 
 
 if __name__ == "__main__":
