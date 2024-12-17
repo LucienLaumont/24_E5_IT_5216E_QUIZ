@@ -2,36 +2,29 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import hashlib
 
-from security.jwt_utils import build_token, decode_token
+from routes.health import health_bp
+from routes.questions import question_bp
+from security.jwt_utils import build_token
+from database.init_db import init_db
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/')
-def hello_world():
-	x = 'world'
-	return f"Hello, {x}"
-
-@app.route('/quiz-info', methods=['GET'])
-def GetQuizInfo():
-	return {"size": 0, "scores": []}, 200
-
+# Enregistrement des blueprints
+app.register_blueprint(health_bp)
+app.register_blueprint(question_bp)
 
 @app.route('/login', methods=['POST'])
-def PostLogin():
+def post_login():
     try:
-        # Récupération du payload JSON
         payload = request.get_json()
 
-        # Validation de la présence du mot de passe
         if 'password' not in payload:
             return jsonify({"error": "Le champ 'password' est requis."}), 400
 
-        # Récupération du mot de passe fourni
         tried_password = payload['password'].encode('UTF-8')
         hashed = hashlib.md5(tried_password).digest()
 
-        # Comparaison avec un hachage précalculé
         if hashed == b'\xed\xc2z\xec!\xb6\xaee\xef\x91X.\x0c;\xdf\x19':
             token = build_token()
             return jsonify({"token": token}), 200
@@ -40,12 +33,6 @@ def PostLogin():
 
     except Exception as e:
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
-    
-@app.route('/question', methods=['POST'])
-def PostQuestion():
-	return {"size": 0, "scores": []}, 200
-
-
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
