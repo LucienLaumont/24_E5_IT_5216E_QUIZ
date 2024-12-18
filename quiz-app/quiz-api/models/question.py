@@ -3,7 +3,7 @@ class Question:
     Modèle représentant une question dans un quiz.
     """
 
-    def __init__(self, id: int, position: int, title: str, text: str, image: str):
+    def __init__(self, id: int, title: str, text: str, image: str):
         """
         Initialise un objet Question.
 
@@ -14,7 +14,6 @@ class Question:
         :param image: URL ou chemin vers une image associée à la question.
         """
         self.id = id
-        self.position = position
         self.title = title
         self.text = text
         self.image = image

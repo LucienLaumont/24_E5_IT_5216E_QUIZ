@@ -21,9 +21,9 @@ def get_quiz_info():
         cursor.execute("SELECT COUNT(*) FROM Question;")
         size = cursor.fetchone()[0]
 
-        # Récupérer tous les scores de la table Participation
-        cursor.execute("SELECT score FROM Participation;")
-        scores = [row[0] for row in cursor.fetchall()]
+        # Récupérer tous les scores et les noms des joueurs dans l'ordre décroissant des scores
+        cursor.execute("SELECT playerName, score FROM Participation ORDER BY score DESC;")
+        scores = [{"playerName": row[0], "score": row[1]} for row in cursor.fetchall()]
 
         # Fermer la connexion
         conn.close()
@@ -32,3 +32,4 @@ def get_quiz_info():
 
     except Exception as e:
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+

@@ -48,11 +48,23 @@ def post_participation():
         conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
 
-        # Récupérer toutes les questions et vérifier leur existence
-        cursor.execute("SELECT id, position FROM Question;")
-        questions = cursor.fetchall()
-        total_questions = len(questions)
+        # Récupérer les réponses correctes avec l'index dans le groupe de réponses
+        cursor.execute('''
+            SELECT q.position, a.id, 
+                (SELECT COUNT(*) 
+                    FROM Answer a2 
+                    WHERE a2.question_id = a.question_id AND a2.id < a.id) AS answer_index
+            FROM Question q
+            LEFT JOIN Answer a ON q.id = a.question_id
+            WHERE a.isCorrect = 1
+            ORDER BY q.position;
+        ''')
 
+        # Construire le dictionnaire {position: index de la réponse correcte}
+        correct_answers = {row[0]: row[2]+1 for row in cursor.fetchall()}
+
+        # Vérifier le nombre de questions
+        total_questions = len(correct_answers)
         if len(answers) != total_questions:
             return jsonify({"error": "Le nombre de réponses ne correspond pas au nombre de questions."}), 400
 
@@ -60,27 +72,61 @@ def post_participation():
         cursor.execute("INSERT INTO Participation (playerName, score) VALUES (?, ?)", (player_name, 0))
         participation_id = cursor.lastrowid
 
+        print(correct_answers)
+        print(answers)
         # Calculer le score
         score = 0
-        for answer, index in enumerate(answers):
-
+        for position, user_answer_id in enumerate(answers):
             # Vérifier si la réponse est correcte
-            cursor.execute("SELECT isCorrect FROM Answer WHERE question_id = ? AND id = ?", (index, answer+1))
-            result = cursor.fetchone()
-
-            if result[0] == 1:  # Si la réponse est correcte
+            correct_answer_id = correct_answers.get(position+1)
+            print(correct_answer_id,user_answer_id)
+            if correct_answer_id == user_answer_id:
                 score += 1
 
-            # Enregistrer la réponse dans ParticipationAnswer
-            cursor.execute("INSERT INTO ParticipationAnswer (participation_id, question_id, answer_id) VALUES (?, ?, ?)",
-                           (participation_id, index, answer+1))
+            # Enregistrer la réponse de l'utilisateur dans ParticipationAnswer
+            cursor.execute("""
+                INSERT INTO ParticipationAnswer (participation_id, question_id, answer_id)
+                SELECT ?, q.id, ?
+                FROM Question q
+                WHERE q.position = ?
+            """, (participation_id, user_answer_id, position))
 
         # Mettre à jour le score dans la table Participation
         cursor.execute("UPDATE Participation SET score = ? WHERE id = ?", (score, participation_id))
         conn.commit()
         conn.close()
 
-        return jsonify({"message": "Participation enregistrée avec succès.","playerName": player_name, "score": score}), 200
+        return jsonify({"message": "Participation enregistrée avec succès.", "playerName": player_name, "score": score}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+
+
+@participation_bp.route('/correct-answers', methods=['GET'])
+def get_correct_answers():
+    try:
+        # Connexion à la base de données
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+
+        # Exécuter la requête pour récupérer les réponses correctes
+        cursor.execute('''
+            SELECT q.position, a.id
+            FROM Question q
+            LEFT JOIN Answer a ON q.id = a.question_id
+            WHERE a.isCorrect = 1
+            ORDER BY q.position;
+        ''')
+        results = cursor.fetchall()
+
+        # Générer la liste où l'indice correspond à la position
+        correct_answers = [None] * (max([row[0] for row in results]) + 1)  # Crée une liste basée sur les positions
+        for position, answer_id in results:
+            correct_answers[position] = answer_id
+
+        conn.close()
+
+        return jsonify(correct_answers), 200
 
     except Exception as e:
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500

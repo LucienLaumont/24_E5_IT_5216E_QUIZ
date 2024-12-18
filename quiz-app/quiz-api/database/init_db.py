@@ -42,7 +42,7 @@ def init_db(db_name="database.db"):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Participation (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                playerName TEXT NOT NULL,
+                PlayerName TEXT NOT NULL,
                 score INT,
                 participation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
