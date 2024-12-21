@@ -11,7 +11,7 @@
             placeholder="Username"
           />
         </div>
-        <button @click="submitName" class="btn btn-outline-danger btn-lg">
+        <button @click="launchNewQuiz" class="btn btn-outline-danger btn-lg">
           GO!
         </button>
       </div>
@@ -21,19 +21,25 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+import participationStorageService from '@/services/ParticipationStorageService';
 
 // Variable réactive pour stocker le nom du joueur
 const playerName = ref('');
+const router = useRouter();
 
 // Fonction appelée lors du clic sur le bouton
-const submitName = () => {
+function launchNewQuiz() {
   if (playerName.value.trim() !== '') {
-    console.log('Nom du joueur :', playerName.value);
-    // Vous pouvez ajouter une logique supplémentaire ici
+    participationStorageService.savePlayerName(playerName.value);
+    console.log('Launch new quiz with', playerName.value);
+
+    router.push('/questions'); // Redirection vers la première question
   } else {
     alert('Veuillez saisir votre nom.');
   }
-};
+}
 </script>
 
 <style scoped>

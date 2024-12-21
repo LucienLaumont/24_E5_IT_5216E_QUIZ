@@ -157,11 +157,12 @@ def get_question_by_position():
     Récupère une question spécifique en fonction de sa position et ses réponses possibles.
     :query param position: La position de la question à récupérer.
     """
+    conn = None
     try:
         # Récupération de la position depuis les paramètres de requête
         position = request.args.get('position', type=int)
-        if position is None:
-            return jsonify({"error": "Le paramètre 'position' est requis et doit être un entier."}), 400
+        if position is None or position <= 0:
+            return jsonify({"error": "Le paramètre 'position' est requis et doit être un entier positif."}), 400
 
         # Connexion à la base de données
         conn = sqlite3.connect(DATABASE_NAME)
@@ -176,7 +177,6 @@ def get_question_by_position():
         question_row = cursor.fetchone()
 
         if not question_row:
-            conn.close()
             return jsonify({"error": f"Aucune question trouvée pour la position {position}."}), 404
 
         # Structuration de l'objet question
@@ -207,10 +207,13 @@ def get_question_by_position():
         # Retourner la question et ses réponses possibles
         return jsonify(question), 200
 
+    except sqlite3.Error as db_error:
+        return jsonify({"error": "Erreur avec la base de données.", "details": str(db_error)}), 500
     except Exception as e:
+        return jsonify({"error": "Une erreur inattendue s'est produite.", "details": str(e)}), 500
+    finally:
         if conn:
             conn.close()
-        return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
 
 
 @question_bp.route('/questions', methods=['POST'])
@@ -236,7 +239,12 @@ def questions():
         text = payload['text']
         image = payload['image']
         possible_answers = payload['possibleAnswers']
-        
+
+        # Vérification de la position déjà existante
+        cursor.execute('SELECT COUNT(*) FROM Question WHERE position = ?', (position,))
+        count = cursor.fetchone()[0]
+        if count > 0:
+            return jsonify({"error": f"La position {position} est déjà occupée par une autre question."}), 409
 
         # Gestion des conflits de position
         manage_position.increment_positions(cursor, position)
@@ -255,7 +263,7 @@ def questions():
         for answer in possible_answers:
             if 'text' not in answer or 'isCorrect' not in answer:
                 return jsonify({"error": "Chaque réponse doit contenir les champs 'text' et 'isCorrect'."}), 400
-            
+
             cursor.execute('''
                 INSERT INTO Answer (question_id, text, isCorrect)
                 VALUES (?, ?, ?)
@@ -270,11 +278,14 @@ def questions():
             "message": "Question et réponses insérées avec succès."
         }), 200
 
+    except sqlite3.IntegrityError as ie:
+        return jsonify({"error": "Erreur d'intégrité de la base de données.", "details": str(ie)}), 500
     except Exception as e:
         if conn:
             conn.rollback()
             conn.close()
         return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+
 
 @question_bp.route('/questions/<int:questionId>', methods=['PUT'])
 @token_required

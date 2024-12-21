@@ -7,16 +7,14 @@ const instance = axios.create({
 
 export default {
   async call(method, resource, data = null, token = null) {
-    var headers = {
+    const headers = {
       'Content-Type': 'application/json',
     };
-    if (token != null) {
-      headers.authorization = 'Bearer ' + token;
-    }
+    if (token) headers.authorization = `Bearer ${token}`;
 
     return instance({
       method,
-      headers: headers,
+      headers,
       url: resource,
       data,
     })
@@ -24,13 +22,21 @@ export default {
         return { status: response.status, data: response.data };
       })
       .catch((error) => {
-        console.error(error);
+        console.error(
+          `Erreur lors de l'appel API : ${method} ${resource}`,
+          error
+        );
+        return null; // Vous pouvez également propager l'erreur ou gérer autrement
       });
   },
+
+  // Méthode pour récupérer les informations générales du quiz
   getQuizInfo() {
     return this.call('get', 'quiz-info');
   },
-  getQuestion(position) {
-    // not implemented
+
+  // Méthode pour récupérer une question par sa position
+  async getQuestion(position) {
+    return this.call('get', `questions?position=${position}`);
   },
 };
