@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <g fill="none" stroke-width="24">
+    <!-- Augmentation du rayon à 150 et épaisseur à 24 -->
+    <circle cx="300" cy="350" r="150" stroke="#0081C8"/> <!-- Cercle bleu -->
+    <circle cx="600" cy="350" r="150" stroke="#000000"/> <!-- Cercle noir -->
+    <circle cx="900" cy="350" r="150" stroke="#EE334E"/> <!-- Cercle rouge -->
+    <circle cx="450" cy="525" r="150" stroke="#FCB131"/> <!-- Cercle jaune -->
+    <circle cx="750" cy="525" r="150" stroke="#00A651"/> <!-- Cercle vert -->
+  </g>
+</svg>
