@@ -39,4 +39,8 @@ export default {
   async getQuestion(position) {
     return this.call('get', `questions?position=${position}`);
   },
+
+  async getParticipation(participationId) {
+    return this.call('get', `/participations/${participationId}`);
+  },
 };

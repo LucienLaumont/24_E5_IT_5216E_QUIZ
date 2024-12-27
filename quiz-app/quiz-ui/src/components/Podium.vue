@@ -1,191 +1,179 @@
 <script setup lang="ts">
-interface Winner {
+import { computed, onMounted, ref } from 'vue';
+
+interface Score {
   playerName: string;
   score: number;
 }
 
-defineProps<{
-  winners: Winner[];
-}>();
+interface PodiumProps {
+  scores: Score[];
+}
+
+const props = defineProps<PodiumProps>();
+const showThird = ref(false);
+const showSecond = ref(false);
+const showFirst = ref(false);
+
+const topThree = computed(() => {
+  return [...props.scores].sort((a, b) => b.score - a.score).slice(0, 3);
+});
+
+onMounted(() => {
+  // Sequence the animations
+  setTimeout(() => {
+    showThird.value = true;
+  }, 500);
+  setTimeout(() => {
+    showSecond.value = true;
+  }, 1000);
+  setTimeout(() => {
+    showFirst.value = true;
+  }, 1500);
+});
 </script>
 
 <template>
   <div class="podium-container">
-    <!-- Deuxième place -->
-    <div class="podium-column silver-column">
-      <div class="winner-info silver-winner">
-        <div class="medal">🥈</div>
-        <div class="winner-name">{{ winners[1].playerName }}</div>
-        <div class="winner-score">{{ winners[1].score }} pts</div>
-      </div>
-      <div class="podium-block silver">2</div>
-    </div>
+    <h2 class="podium-title">🏆 Podium des Champions 🏆</h2>
 
-    <!-- Première place -->
-    <div class="podium-column gold-column">
-      <div class="winner-info gold-winner">
-        <div class="crown">👑</div>
-        <div class="medal">🥇</div>
-        <div class="winner-name">{{ winners[0].playerName }}</div>
-        <div class="winner-score">{{ winners[0].score }} pts</div>
-      </div>
-      <div class="podium-block gold">1</div>
-    </div>
+    <div class="podium">
+      <!-- 2ème place -->
+      <Transition name="slide-up">
+        <div v-if="showSecond && topThree[1]" class="podium-spot silver">
+          <div class="player-info">
+            <span class="medal">🥈</span>
+            <span class="name">{{ topThree[1].playerName }}</span>
+            <span class="score">{{ topThree[1].score }} pts</span>
+          </div>
+          <div class="podium-block">2</div>
+        </div>
+      </Transition>
 
-    <!-- Troisième place -->
-    <div class="podium-column bronze-column">
-      <div class="winner-info bronze-winner">
-        <div class="medal">🥉</div>
-        <div class="winner-name">{{ winners[2].playerName }}</div>
-        <div class="winner-score">{{ winners[2].score }} pts</div>
-      </div>
-      <div class="podium-block bronze">3</div>
+      <!-- 1ère place -->
+      <Transition name="slide-up">
+        <div v-if="showFirst && topThree[0]" class="podium-spot gold">
+          <div class="player-info">
+            <span class="medal">🥇</span>
+            <span class="name">{{ topThree[0].playerName }}</span>
+            <span class="score">{{ topThree[0].score }} pts</span>
+          </div>
+          <div class="podium-block">1</div>
+        </div>
+      </Transition>
+
+      <!-- 3ème place -->
+      <Transition name="slide-up">
+        <div v-if="showThird && topThree[2]" class="podium-spot bronze">
+          <div class="player-info">
+            <span class="medal">🥉</span>
+            <span class="name">{{ topThree[2].playerName }}</span>
+            <span class="score">{{ topThree[2].score }} pts</span>
+          </div>
+          <div class="podium-block">3</div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
 
 <style scoped>
 .podium-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  text-align: center;
+  max-width: 60vh;
+  min-width: 45vh;
+}
+
+.podium-title {
+  color: black;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+}
+
+.podium {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 10px;
-  height: 400px;
-  margin: 40px 0;
-  perspective: 1000px;
+  max-height: 250px;
+  min-height: 200px;
 }
 
-.podium-column {
+.podium-spot {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform-style: preserve-3d;
-  animation: rotateIn 1s ease-out forwards;
+  max-width: 120px;
+  min-width: 100px;
 }
 
-.winner-info {
-  text-align: center;
-  margin-bottom: 15px;
-  padding: 15px;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-}
-
-.winner-info:hover {
-  transform: translateY(-10px);
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  min-height: 80px;
 }
 
 .medal {
-  font-size: 2.5em;
-  margin-bottom: 10px;
-  animation: bounce 1s ease infinite;
+  font-size: 2rem;
+  margin-bottom: 5px;
 }
 
-.crown {
-  font-size: 2em;
-  margin-bottom: -10px;
-  animation: floating 3s ease-in-out infinite;
-}
-
-.winner-name {
+.name {
   font-weight: bold;
-  font-size: 1.2em;
-  margin: 5px 0;
   color: #2c3e50;
+  margin-bottom: 3px;
+  word-break: break-word;
 }
 
-.winner-score {
-  font-weight: bold;
+.score {
   color: #666;
+  font-size: 0.9rem;
 }
 
 .podium-block {
-  width: 120px;
+  width: 100%;
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  border-radius: 8px 8px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #fff;
   font-weight: bold;
-  font-size: 1.5em;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Hauteurs des podiums */
-.gold-column .podium-block {
-  height: 200px;
-}
-.silver-column .podium-block {
-  height: 150px;
-}
-.bronze-column .podium-block {
-  height: 100px;
+.gold .podium-block {
+  background: linear-gradient(145deg, #ffd700, #ffc600);
 }
 
-/* Styles spécifiques aux médailles */
-.gold {
-  background: linear-gradient(145deg, #ffd700, #ffa500);
-}
-.silver {
-  background: linear-gradient(145deg, #c0c0c0, #a9a9a9);
-}
-.bronze {
-  background: linear-gradient(145deg, #cd7f32, #a0522d);
+.silver .podium-block {
+  background: linear-gradient(145deg, #c0c0c0, #b0b0b0);
 }
 
-.gold-winner .winner-info {
-  border: 2px solid #ffd700;
-}
-.silver-winner .winner-info {
-  border: 2px solid #c0c0c0;
-}
-.bronze-winner .winner-info {
-  border: 2px solid #cd7f32;
+.bronze .podium-block {
+  background: linear-gradient(145deg, #cd7f32, #bd6f22);
 }
 
-/* Animations */
-@keyframes rotateIn {
-  from {
-    transform: rotateX(90deg);
-    opacity: 0;
-  }
-  to {
-    transform: rotateX(0);
-    opacity: 1;
-  }
+/* Animation styles */
+.slide-up-enter-active {
+  transition: all 0.5s ease-out;
 }
 
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-@keyframes floating {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-10deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(10deg);
-  }
-}
-
-/* Animation séquentielle pour chaque colonne */
-.silver-column {
-  animation-delay: 0.2s;
-}
-.gold-column {
-  animation-delay: 0.4s;
-}
-.bronze-column {
-  animation-delay: 0.6s;
+.slide-up-enter-to {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
