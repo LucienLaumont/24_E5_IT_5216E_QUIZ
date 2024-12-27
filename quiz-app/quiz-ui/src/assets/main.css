@@ -1,8 +1,9 @@
 @import './base.css';
 
+/* Suppression de la limite de largeur pour occuper toute la largeur */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%; /* Assure que le conteneur prend toute la largeur */
+  margin: 0; /* Supprime l'espacement automatique au centre */
   padding: 2rem;
   font-weight: normal;
 }
@@ -10,15 +11,9 @@
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: rgb(219, 170, 8);
   transition: 0.4s;
   padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
 }
 
 @media (min-width: 1024px) {
@@ -27,9 +22,11 @@ a,
     place-items: center;
   }
 
+  /* Suppression de la grille dans #app pour un comportement flexible */
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    display: flex; /* Utilisez flex pour une meilleure adaptabilité */
+    flex-direction: column;
+    width: 100%; /* Assure l'occupation totale de l'écran */
+    padding: 0 2rem; /* Conserve le padding latéral */
   }
 }

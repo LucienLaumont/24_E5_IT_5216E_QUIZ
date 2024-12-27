@@ -3,6 +3,7 @@ import HomePage from '../views/HomePage.vue';
 import NewQuizPage from '../views/NewQuizPage.vue';
 import QuestionsPage from '../views/QuestionsPage.vue';
 import ResultsPage from '../views/ResultsPage.vue';
+import AdminPage from '../views/AdminPage.vue';
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/results',
     name: 'ResultsPage',
     component: ResultsPage,
+  },
+  {
+    path: '/admin',
+    name: 'AdminPage',
+    component: AdminPage,
   },
 ];
 
