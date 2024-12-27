@@ -27,11 +27,6 @@
         </li>
       </ul>
     </div>
-
-    <!-- Bouton retour -->
-    <button @click="goToHome" class="btn btn-primary">
-      Retour à la Home Page
-    </button>
   </div>
 </template>
 
@@ -93,11 +88,6 @@ onMounted(async () => {
     );
   }
 });
-
-// Naviguer vers la page d'accueil
-const goToHome = () => {
-  router.push('/');
-};
 </script>
 
 <style scoped>

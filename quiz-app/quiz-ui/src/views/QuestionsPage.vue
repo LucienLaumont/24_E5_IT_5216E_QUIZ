@@ -14,7 +14,3 @@ if (!playerName) {
   console.error('Nom du joueur introuvable dans le localStorage.');
 }
 </script>
-
-<style scoped>
-/* Ajoutez des styles spécifiques à la page Questions ici */
-</style>
