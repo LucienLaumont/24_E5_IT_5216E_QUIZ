@@ -5,6 +5,7 @@ import hashlib
 from routes.health import health_bp
 from routes.questions import question_bp
 from routes.participations import participation_bp
+from routes.quizzes import quiz_bp
 from security.jwt_utils import build_token, token_required
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ CORS(app)
 app.register_blueprint(health_bp)
 app.register_blueprint(question_bp)
 app.register_blueprint(participation_bp)
+app.register_blueprint(quiz_bp)
 
 @app.route('/login', methods=['POST'])
 def post_login():

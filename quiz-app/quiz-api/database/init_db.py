@@ -12,16 +12,30 @@ def init_db(db_name="database.db"):
 
         print(f"Base de données '{db_name}' connectée avec succès.")
 
+        # Activer les clés étrangères
         cursor.execute('PRAGMA foreign_keys = ON;')
+
+        # Table Quiz
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Quiz (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''')
+        print("Table 'Quiz' créée avec succès.")
 
         # Table Question
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Question (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                quiz_id INTEGER NOT NULL,
                 position INTEGER NOT NULL,
                 title TEXT,
                 text TEXT,
-                image TEXT
+                image TEXT,
+                FOREIGN KEY (quiz_id) REFERENCES Quiz(id) ON DELETE CASCADE
             );
         ''')
         print("Table 'Question' créée avec succès.")
@@ -42,9 +56,11 @@ def init_db(db_name="database.db"):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Participation (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                PlayerName TEXT NOT NULL,
+                quiz_id INTEGER NOT NULL,
+                playerName TEXT NOT NULL,
                 score INT,
-                participation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                participation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (quiz_id) REFERENCES Quiz(id) ON DELETE CASCADE
             );
         ''')
         print("Table 'Participation' créée avec succès.")

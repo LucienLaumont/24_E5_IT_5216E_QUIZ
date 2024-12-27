@@ -1,26 +1,24 @@
-
 class Participation:
     """
     Modèle représentant une participation à un quiz.
     """
-
-    def __init__(self, id: int, playerName: str):
+    def __init__(self, id: int, quiz_id: int, playerName: str):
         """
         Initialise une instance de Participation.
 
         :param id: Identifiant unique de la participation.
+        :param quiz_id: Identifiant du quiz associé.
         :param playerName: Nom du joueur ayant effectué la participation.
         """
         self.id = id
+        self.quiz_id = quiz_id
         self.playerName = playerName
 
     def __repr__(self):
         """
         Représentation en chaîne de caractères de l'instance Participation.
-
-        :return: Chaîne formatée avec les attributs de la participation.
         """
-        return f"Participation(id={self.id}, playerName='{self.playerName}')"
+        return f"Participation(id={self.id}, quiz_id={self.quiz_id}, playerName='{self.playerName}')"
 
 class ParticipationAnswer:
     """
