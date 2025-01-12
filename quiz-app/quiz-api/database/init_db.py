@@ -1,6 +1,6 @@
 import sqlite3
 
-def init_db(db_name="database.db"):
+def init_db(db_name="quiz.db"):
     """
     Initialise une base de données SQLite avec les tables nécessaires pour un quiz.
     :param db_name: Nom de la base de données SQLite.

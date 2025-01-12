@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 import sqlite3
 
-DATABASE_NAME = "database.db"
+DATABASE_NAME = "quiz.db"
 
 health_bp = Blueprint('health', __name__)
 

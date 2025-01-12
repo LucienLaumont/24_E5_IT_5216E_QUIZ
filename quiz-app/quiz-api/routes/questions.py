@@ -4,7 +4,7 @@ from security.jwt_utils import token_required
 from database import manage_position
 import sqlite3
 
-DATABASE_NAME = "database.db"
+DATABASE_NAME = "quiz.db"
 
 question_bp = Blueprint('question', __name__)
 
