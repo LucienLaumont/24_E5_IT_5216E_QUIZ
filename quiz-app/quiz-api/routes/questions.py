@@ -18,6 +18,7 @@ def rebuild_db():
         return jsonify({"error": "An error occurred.", "details": str(e)}), 500
 
 @question_bp.route('/questions/all',methods=['DELETE'])
+@token_required
 def delete_all_questions():
     try:
         # Connexion à la base de données
@@ -239,12 +240,6 @@ def questions():
         text = payload['text']
         image = payload['image']
         possible_answers = payload['possibleAnswers']
-
-        # Vérification de la position déjà existante
-        cursor.execute('SELECT COUNT(*) FROM Question WHERE position = ?', (position,))
-        count = cursor.fetchone()[0]
-        if count > 0:
-            return jsonify({"error": f"La position {position} est déjà occupée par une autre question."}), 409
 
         # Gestion des conflits de position
         manage_position.increment_positions(cursor, position)
