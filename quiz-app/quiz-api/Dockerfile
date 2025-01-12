@@ -2,7 +2,7 @@
 FROM python:3.9-alpine
 
 # Création et positionnement du répertoire par défaut dans le container
-WORKDIR /quiz-api
+WORKDIR /app
 
 # Copie du fichier requirements local (machine hôte) vers le container 
 # (répertoire /app, car il s'agit du WORKDIR)
