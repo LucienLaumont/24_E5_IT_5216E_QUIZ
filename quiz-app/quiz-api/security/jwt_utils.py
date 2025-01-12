@@ -63,7 +63,7 @@ def token_required(f):
             token = request.headers['Authorization'].split(" ")[1]  # Format: Bearer <token>
 
         if not token:
-            return jsonify({"error": "Token manquant. Accès non autorisé."}), 403
+            return jsonify({"error": "Token manquant. Accès non autorisé."}), 401
 
         try:
             # Décoder le token
