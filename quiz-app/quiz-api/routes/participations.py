@@ -36,6 +36,8 @@ def delete_all_participations():
 
 @participation_bp.route('/participations', methods=['POST'])
 def post_participation():
+    conn = None
+    participation_id = None
     try:
         payload = request.get_json()
         player_name = payload.get("playerName")
@@ -68,6 +70,9 @@ def post_participation():
         cursor.execute("INSERT INTO Participation (playerName, score) VALUES (?, ?)", (player_name, 0))
         participation_id = cursor.lastrowid
 
+        if not participation_id:
+            raise Exception("Impossible de récupérer l'ID de la participation.")
+
         score = 0
         for position, user_answer_id in enumerate(answers):
             correct_answer_id = correct_answers.get(position + 1)
@@ -82,9 +87,9 @@ def post_participation():
                 WHERE q.position = ?
             ''', (participation_id, user_answer_id, position + 1))
 
+        # Mettre à jour le score
         cursor.execute("UPDATE Participation SET score = ? WHERE id = ?", (score, participation_id))
         conn.commit()
-        conn.close()
 
         return jsonify({
             "message": "Participation enregistrée avec succès.",
@@ -96,8 +101,16 @@ def post_participation():
     except Exception as e:
         if conn:
             conn.rollback()
+        return jsonify({
+            "error": "Une erreur s'est produite.",
+            "details": str(e),
+            "participationId": participation_id  # Toujours inclure l'ID si disponible
+        }), 500
+
+    finally:
+        if conn:
             conn.close()
-        return jsonify({"error": "Une erreur s'est produite.", "details": str(e)}), 500
+
 
 
 @participation_bp.route('/correct-answers', methods=['GET'])

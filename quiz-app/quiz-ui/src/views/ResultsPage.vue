@@ -77,24 +77,26 @@ const router = useRouter();
 
 onMounted(async () => {
   const participationId = localStorage.getItem('participationId');
+
   if (!participationId) {
-    console.error('Aucun ID de participation trouvé dans le localStorage.');
-    router.push('/');
-    return;
+    console.warn('Aucun ID de participation trouvé dans le localStorage.');
+    score.value = 0; // Score par défaut
+    totalQuestions.value = 0; // Valeur par défaut
   }
 
   try {
     const [quizInfo, participationResponse] = await Promise.all([
       QuizApiService.getQuizInfo(),
-      QuizApiService.getParticipation(participationId),
+      participationId ? QuizApiService.getParticipation(participationId) : null,
     ]);
 
     if (participationResponse?.status === 200) {
       score.value = participationResponse.data.score;
       totalQuestions.value = quizInfo.data.size;
-    } else {
-      console.error('Erreur : Participation non valide.');
-      router.push('/');
+    } else if (!participationId) {
+      console.warn('Participation non valide. Score par défaut utilisé.');
+      score.value = 0; // Score par défaut pour les non-participants
+      totalQuestions.value = quizInfo?.data?.size || 0; // Total des questions par défaut
     }
 
     leaderboardData.value = quizInfo.data.scores
@@ -121,7 +123,8 @@ onMounted(async () => {
           ];
   } catch (error) {
     console.error('Erreur lors de la récupération des résultats :', error);
-    router.push('/');
+    score.value = 0; // Score par défaut en cas d'erreur
+    totalQuestions.value = 0; // Valeur par défaut en cas d'erreur
   }
 });
 </script>
