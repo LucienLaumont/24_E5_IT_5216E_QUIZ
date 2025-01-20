@@ -22,6 +22,7 @@ ENV FLASK_APP=app.py
 # Copie de l'ensemble du code + dépendances
 COPY . .
 
+
 # Informations sur l'image
 LABEL maintainer="Camman Anthinea <anthinea.camman@edu.esiee.fr>" \
     version="1.0"
