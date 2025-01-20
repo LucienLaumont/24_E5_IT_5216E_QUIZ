@@ -79,10 +79,16 @@ const submitParticipation = async () => {
     });
 
     if (response?.status === 200) {
+      console.log('Réponse API complète :', response.data);
+
+      const participationId = response.data.participationId;
+      if (!participationId) {
+        console.error('ID de participation introuvable dans la réponse API.');
+        return;
+      }
+
       participationStorageService.saveParticipationScore(response.data.score);
-      participationStorageService.saveParticipationId(
-        response.data.participationId
-      ); // Sauvegarder l'ID de participation
+      participationStorageService.saveParticipationId(participationId); // Sauvegarder l'ID de participation
       router.push('/results'); // Redirection vers la page des résultats
     } else {
       console.error(
